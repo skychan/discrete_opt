@@ -32,7 +32,7 @@ def solve_it(input_data):
     	neighbors.append(temp)
 
 
-    # coloring...
+    # dirty coloring
     solution = [0]*node_count
     k = 0
     for node in neighbors:
@@ -44,8 +44,17 @@ def solve_it(input_data):
             t = list(set(xrange(m))-set(colors))
             t.sort()
             solution[k] = t[0]            
-            
         k += 1
+
+    # class the colors
+    Class = [None]*(max(solution)+1)
+    t = 0
+    for node in solution:
+        if Class[node] == None:
+            Class[node] = (t,)
+        else:
+            Class[node]+= (t,)
+        t += 1
 
     node_count = max(solution)+1
 
@@ -57,7 +66,7 @@ def solve_it(input_data):
     output_data = str(node_count) + ' ' + str(0) + '\n'
     output_data += ' '.join(map(str, solution))
 
-    return output_data
+    return output_data,Class
 
 
 import sys
