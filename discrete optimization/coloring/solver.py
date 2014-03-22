@@ -25,49 +25,159 @@ def solve_it(input_data):
     # get all the nodes' neighbors:
     neighbors = []
     for i in xrange(node_count):
-    	temp = []
+    	temp = set([i])
     	for k in edges:
     		if i in k:
-    			temp.append(k[1-k.index(i)])
+    			temp|= set(k)
     	neighbors.append(temp)
 
 
     # dirty coloring
-    solution = [0]*node_count
-    k = 0
-    for node in neighbors:
-        colors = []
+    solution = [None]*node_count
+    nodes = [x for x in xrange(node_count)]
+    nodes.sort(key = lambda i: len(neighbors[i]),reverse = True)
+    
+    #k = 0
+    solution[nodes[0]] = 0
+    for i in nodes[1:]:
+        node = neighbors[i]
+        colors = [0]
+        node = list(node)
+        node.sort()
+        if solution[i] == None:
+            for col in node:
+                colors.append(solution[col])
+            colors = list(set(colors)-set([None]))
+            m = max(colors) +2
+            t = list(set(xrange(m))-set(colors))
+            solution[i] = min(t)
+    '''
+            
         for color in node:
             colors.append(solution[color])
-            m = max(colors) + 2
+        m = max(colors) + 2
         if solution[k] in colors:
             t = list(set(xrange(m))-set(colors))
             t.sort()
             solution[k] = t[0]            
-        k += 1
+        #k += 1
+    '''
 
+    s = min(solution)
+    if s:
+        solution = [solution[x]-s for x in xrange(node_count)]
+    
+    solution = [i for i in xrange(node_count)]
     # class the colors
     Class = [None]*(max(solution)+1)
     t = 0
     for node in solution:
         if Class[node] == None:
-            Class[node] = (t,)
+            Class[node] = [t]
         else:
-            Class[node]+= (t,)
+            Class[node].append(t)
         t += 1
+    Class.sort(key = len)
 
-    node_count = max(solution)+1
-haha
+    # let's swap
+    def bar(x):
+        xn = set()
+        for i in x:
+            xn |= set(neighbors[i])
+        return xn - set(x)
+    
+    while True:
+        modify = 0
+        for i in xrange(len(Class)):
+                for j in xrange(i+1,len(Class)):
+                    a = Class[i]
+                    b = Class[j]
+                    if a and b:
+                        an = bar(a)
+                        bn = bar(b)
+                        aset = bn & set(a)
+                        bset = an & set(b)
+                        if aset:
+                            at = (set(a)-aset)|bset
+                            bt = (set(b)-bset)|aset
+                            if len(bt)**2 + len(at)**2 > len(a)**2 + len(b)**2:
+                                Class[i] = list(at)
+                                Class[j] = list(bt)
+                                modify = 1
+                        else:
+                            bt = list(set(b)|set(a))
+                            Class[j] = bt
+                            Class[i] = []
+                            modify = 2
+        while Class.count([]):
+            Class.remove([])
+            Class.sort(key= len)
+        if modify == 0:
+            break
 
+
+
+
+    '''
+                a = ta[-1]
+                an = bar(a)
+                b = ta[i]
+                if b:
+                    bset = an & set(b)
+                    if bset :
+                        bn = bar(b)
+                        aset = bn & set(a)
+                        if len(aset) < len(bset):
+                            at = list((set(a)|bset) -aset)
+                            bt = list((set(b)|aset) -bset)
+                            ta[-1] = at
+                            ta[i] = bt
+                            modify = 1                   
+                    else:
+                        at = list(set(a)|set(b))
+                        ta[-1] = at
+                        ta[i] = []
+                        modify = 2
+            while ta.count([]):
+                ta.remove([])
+            tt.append(a)
+            ta.pop()
+        tt.sort(key = len)
+        print tt
+        Class = tt
+#        Class.sort(key = len, reverse = True)
+        if modify == 0:
+            break'''
+   
+    
+    node_count = len(Class)
+    # coloring
+    color = 0
+    for nodes in Class:
+        for node in nodes:
+            solution[node] = color
+
+        color += 1
+
+
+    # check 
+    
+    c = []
+    for i in edges:
+        temp = solution[i[0]] - solution[i[1]]
+        c.append(temp)
+    if 0 in c:
+        a = 0
+    else:
+        a = 1
 
 
 
     # prepare the solution in the specified output format
-    output_data = str(node_count) + ' ' + str(0) + '\n'
+    output_data = str(node_count) + ' ' + str(a) + '\n'
     output_data += ' '.join(map(str, solution))
 
-    return output_data,Class
-
+    return output_data
 
 import sys
 
