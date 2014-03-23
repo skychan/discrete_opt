@@ -20,7 +20,7 @@ def solve_it(input_data):
 
     # build a trivial solution
     # every node has its own color
-#    solution = range(0, node_count)
+
 
     # get all the nodes' neighbors:
     neighbors = []
@@ -32,25 +32,90 @@ def solve_it(input_data):
     	neighbors.append(temp)
 
 
-    # dirty coloring
-    solution = [None]*node_count
+    # dirty coloring and sort by node's degree
+    solution = [0]*node_count
     nodes = [x for x in xrange(node_count)]
     nodes.sort(key = lambda i: len(neighbors[i]),reverse = True)
     
-    #k = 0
-    solution[nodes[0]] = 0
-    for i in nodes[1:]:
-        node = neighbors[i]
-        colors = [0]
-        node = list(node)
-        node.sort()
-        if solution[i] == None:
-            for col in node:
-                colors.append(solution[col])
-            colors = list(set(colors)-set([None]))
-            m = max(colors) +2
-            t = list(set(xrange(m))-set(colors))
-            solution[i] = min(t)
+    def generateclass(solution):
+        c = [[]]*(max(solution)+1)
+        t = 0
+        for node in solution:
+            if c[node] == []:
+                c[node] = [t]
+            else:
+                c[node].append(t)
+            t += 1
+        return c
+
+    def Bad_edge(Class):
+        Bad = []
+        for color in Class:
+            bad = []
+            for edge in edges:
+                if set(edge) <= set(color):
+                    bad.append(edge)
+            Bad.append(bad)
+        return Bad
+
+    def bad_count(Bad):
+        bad = []
+        for b in Bad:
+            bad.extend(b)
+        return bad,len(bad)
+
+    def f(Class):
+        Bad = Bad_edge(Class)
+        n = len(Bad)
+        v = 0
+        for i in xrange(n):
+            b = len(Bad[i])
+            c = len(Class[i])
+            v += 2*b*c - c**2
+        return v
+
+    def neighborcolor(node):
+        color = []
+        domain = list(set(neighbors[node]) - set([node]))
+        for neighbor in domain:
+            color.append(solution[neighbor])
+        ncolor = set(color)
+        return len(ncolor),ncolor
+
+    def coloring(node,s,Class):
+        m,ncolor = neighborcolor(node)
+        colors = set(solution) - ncolor
+        #Class = generateclass(solution)
+        #s = f(Class)
+        if colors:
+            nodecolor = solution[node]
+            for tryc in list(colors):
+                tclass = generateclass(solution)
+                tclass[nodecolor].remove(node)
+                tclass[tryc].append(node)
+                sn = f(tclass)
+                if sn < s:
+                    s = sn
+                    nodecolor = tryc
+                    Class = tclass[:]
+                    solution[node] = nodecolor            
+        else:
+            nodecolor = m
+            solution[node] = nodecolor
+            Class = generateclass(solution)
+
+    def swap():
+
+
+    
+
+    global Class
+    Class = generateclass(solution)
+    global s
+    s = f(Class)
+    for i in nodes:
+        coloring(i,s,Class)
+
     '''
             
         for color in node:
@@ -61,7 +126,7 @@ def solve_it(input_data):
             t.sort()
             solution[k] = t[0]            
         #k += 1
-    '''
+    
 
     s = min(solution)
     if s:
@@ -117,7 +182,7 @@ def solve_it(input_data):
 
 
 
-
+    '''
     '''
                 a = ta[-1]
                 an = bar(a)
@@ -149,7 +214,7 @@ def solve_it(input_data):
         if modify == 0:
             break'''
    
-    
+    '''
     node_count = len(Class)
     # coloring
     color = 0
@@ -158,10 +223,12 @@ def solve_it(input_data):
             solution[node] = color
 
         color += 1
+        '''
 
 
     # check 
-    
+    Class = generateclass(solution)
+    node_count = len(set(solution))
     c = []
     for i in edges:
         temp = solution[i[0]] - solution[i[1]]
