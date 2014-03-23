@@ -87,24 +87,90 @@ def solve_it(input_data):
         colors = set(solution) - ncolor
         #Class = generateclass(solution)
         #s = f(Class)
+        nodecolor = solution[node]
         if colors:
-            nodecolor = solution[node]
             for tryc in list(colors):
-                tclass = generateclass(solution)
-                tclass[nodecolor].remove(node)
-                tclass[tryc].append(node)
-                sn = f(tclass)
+                at = Class[nodecolor]
+                at = at[:]
+                bt = Class[tryc]
+                bt = bt[:]
+                #tclass = generateclass(solution)
+                Class[nodecolor].remove(node)
+                Class[tryc].append(node)
+                sn = f(Class)
                 if sn < s:
                     s = sn
-                    nodecolor = tryc
-                    Class = tclass[:]
-                    solution[node] = nodecolor            
+                    nodecolor = tryc                    
+                    solution[node] = nodecolor
+                else:
+                    Class[nodecolor] = at
+                    Class[tryc] = bt
         else:
+            Class[nodecolor].remove(node)
             nodecolor = m
             solution[node] = nodecolor
-            Class = generateclass(solution)
+            Class.append([node])
+            s = f(Class)
+        return s
+            
 
-    def swap():
+    def bar(x):
+        xn = set()
+        for i in x:
+            xn |= set(neighbors[i])
+        return xn - set(x)
+
+    def foo(x,y):
+        xn = bar(x)
+        yn = bar(y)
+        xset = yn & set(x)
+        yset = xn & set(y)
+        return xset,yset
+
+    def update(Class):
+        while Class.count([]):
+            Class.remove([])
+        solution = [0]*node_count
+        for color in xrange(len(Class)):
+            for node in Class[color]:
+                solution[node] = color
+        return solution
+
+    def swap(Class,s):
+        while True:
+            modify = 0
+            n = len(Class)
+            for i in xrange(n):
+                for j in xrange(i+1,n):
+                    a = Class[i]
+                    a = a[:]
+                    b = Class[j]
+                    b = b[:]
+                    if a and b:
+                        aset,bset = foo(a,b)
+                        if aset:
+                            at = (set(a)-aset)|bset
+                            bt = (set(b)-bset)|aset
+                            Class[i] = list(at)
+                            Class[j] = list(bt)                          
+                        else:
+                            at = set(a)|set(b)
+                            Class[i] = list(at)
+                            Class[j] = []
+                        sn = f(Class)
+                        if sn < s:
+                            s = sn
+                            modify = 1
+                            for k in Class[i]:
+                                solution[k] = i
+                            for k in Class[j]:
+                                solution[k] = j
+                        else:
+                            Class[i] = a
+                            Class[j] = b
+            if modify == 0:
+                break
+        return s
 
 
     
@@ -114,7 +180,10 @@ def solve_it(input_data):
     global s
     s = f(Class)
     for i in nodes:
-        coloring(i,s,Class)
+        s = coloring(i,s,Class)
+        s = swap(Class,s)
+        #Class = generateclass(solution)
+        #solution = update(Class)
 
     '''
             
@@ -241,7 +310,7 @@ def solve_it(input_data):
 
 
     # prepare the solution in the specified output format
-    output_data = str(node_count) + ' ' + str(a) + '\n'
+    output_data = str(node_count) + ' ' + str(0) + '\n'
     output_data += ' '.join(map(str, solution))
 
     return output_data
