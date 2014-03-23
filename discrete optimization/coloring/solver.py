@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+from random import shuffle
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -17,6 +17,7 @@ def solve_it(input_data):
         line = lines[i]
         parts = line.split()
         edges.append((int(parts[0]), int(parts[1])))
+    print 'edges done'
 
     # build a trivial solution
     # every node has its own color
@@ -30,12 +31,14 @@ def solve_it(input_data):
     		if i in k:
     			temp|= set(k)
     	neighbors.append(temp)
+    print 'neighbors done'
 
 
     # dirty coloring and sort by node's degree
-    solution = [0]*node_count
-    nodes = [x for x in xrange(node_count)]
-    nodes.sort(key = lambda i: len(neighbors[i]),reverse = True)
+    #solution = [0]*node_count
+    #nodes = [x for x in xrange(node_count)]
+    #nodes.sort(key = lambda i: len(neighbors[i]),reverse = True)
+    #print 'init.....'
     
     def generateclass(solution):
         c = [[]]*(max(solution)+1)
@@ -72,7 +75,16 @@ def solve_it(input_data):
             b = len(Bad[i])
             c = len(Class[i])
             v += 2*b*c - c**2
+        return n,v
+
+    def ff(Class):
+        n = len(Class)
+        v = 0
+        for i in xrange(n):
+            c = len(Class[i])
+            v += c**2
         return v
+
 
     def neighborcolor(node):
         color = []
@@ -97,7 +109,7 @@ def solve_it(input_data):
                 #tclass = generateclass(solution)
                 Class[nodecolor].remove(node)
                 Class[tryc].append(node)
-                sn = f(Class)
+                badn,sn = f(Class)
                 if sn < s:
                     s = sn
                     nodecolor = tryc                    
@@ -110,8 +122,8 @@ def solve_it(input_data):
             nodecolor = m
             solution[node] = nodecolor
             Class.append([node])
-            s = f(Class)
-        return s
+            badn,s = f(Class)
+        return badn,s
             
 
     def bar(x):
@@ -140,50 +152,112 @@ def solve_it(input_data):
         while True:
             modify = 0
             n = len(Class)
+            nodes = [x for x in xrange(n)]
+            shuffle(nodes)
             for i in xrange(n):
                 for j in xrange(i+1,n):
-                    a = Class[i]
+                    #nodes = [x for x in xrange(node_count)]
+                    #shuffle(nodes)
+                    a = Class[nodes[i]]
                     a = a[:]
-                    b = Class[j]
+                    b = Class[nodes[j]]
                     b = b[:]
                     if a and b:
                         aset,bset = foo(a,b)
                         if aset:
                             at = (set(a)-aset)|bset
                             bt = (set(b)-bset)|aset
-                            Class[i] = list(at)
-                            Class[j] = list(bt)                          
+                            Class[nodes[i]] = list(at)
+                            Class[nodes[j]] = list(bt)                          
                         else:
                             at = set(a)|set(b)
-                            Class[i] = list(at)
-                            Class[j] = []
-                        sn = f(Class)
-                        if sn < s:
+                            Class[nodes[i]] = list(at)
+                            Class[nodes[j]] = []
+                        sn = ff(Class)
+                        if sn > s:
                             s = sn
                             modify = 1
-                            for k in Class[i]:
+                            for k in Class[nodes[i]]:
                                 solution[k] = i
-                            for k in Class[j]:
+                            for k in Class[nodes[j]]:
                                 solution[k] = j
                         else:
-                            Class[i] = a
-                            Class[j] = b
+                            Class[nodes[i]] = a
+                            Class[nodes[j]] = b
             if modify == 0:
                 break
         return s
 
+    def sswap(a,b):
+        if a and b:
+            aset,bset = foo(a,b)
+            if aset:
+                at = (set(a)-aset)|bset
+                bt = (set(b)-bset)|aset
+            else:
+                at = set(a)|set(b)
+                bt = set()
+        return at,bt    
 
-    
-
+    solution = [x for x in xrange(node_count)]
     global Class
     Class = generateclass(solution)
+    print 'Class done'
     global s
-    s = f(Class)
-    for i in nodes:
-        s = coloring(i,s,Class)
-        s = swap(Class,s)
+    s = ff(Class)
+    #print 's done'
+    #greedy with swap
+    #t = 1
+    #for i in nodes:
+    #    print 'start',t
+    #    s = coloring(i,s,Class)
+    #    print t,'done'
+    #    t+=1
+        #s = swap(Class,s)
         #Class = generateclass(solution)
         #solution = update(Class)
+    #teclass = Class[:]   
+    #tabu = [[]]*1000
+    #TClass = []
+    for t in xrange(10000):
+        '''
+        n = len(Class)
+        while True:
+            i = randrange(n)
+            j = randrange(n)
+            if i != j:
+                break
+        tclass = Class
+        a = Class[i]
+        b = Class[j]
+        at,bt = sswap(a,b)
+        if at|bt in tabu:
+            continue
+        tabu.append(at|bt)
+        tabu.pop(0)
+        s = ff(Class)
+        Class[i] = list(at)
+        Class[j] = list(bt)
+        sn = ff(tclass)
+        '''
+        sn = swap(Class,s)
+        while Class.count([]):
+            Class.remove([])
+        if sn > s:
+            s = sn
+            ssolution = update(Class)
+        print t
+        
+
+    #if TClass:
+    #solution = update(TClass)
+    #else:
+    #    solution = update(Class)
+        
+
+
+
+
 
     '''
             
@@ -296,11 +370,11 @@ def solve_it(input_data):
 
 
     # check 
-    Class = generateclass(solution)
-    node_count = len(set(solution))
+    Class = generateclass(ssolution)
+    node_count = len(set(ssolution))
     c = []
     for i in edges:
-        temp = solution[i[0]] - solution[i[1]]
+        temp = ssolution[i[0]] - ssolution[i[1]]
         c.append(temp)
     if 0 in c:
         a = 0
@@ -310,8 +384,8 @@ def solve_it(input_data):
 
 
     # prepare the solution in the specified output format
-    output_data = str(node_count) + ' ' + str(0) + '\n'
-    output_data += ' '.join(map(str, solution))
+    output_data = str(node_count) + ' ' + str(a) + '\n'
+    output_data += ' '.join(map(str, ssolution))
 
     return output_data
 
