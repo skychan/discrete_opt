@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from random import randrange
+from random import randrange,shuffle
 
 def solve_it(input_data):
 	# Modify this code to run your optimization algorithm
@@ -135,8 +135,9 @@ def solve_it(input_data):
 		l2 = Class[newcolor]
 		return 2-2*len(l1)+2*len(l2)
 
-	#solution = [x for x in xrange(node_count)]
+	solution = [x for x in xrange(node_count)]
 	#global Class
+	'''
 	solution = [0]*node_count
 	k = 0
 	for node in neighbors:
@@ -152,80 +153,95 @@ def solve_it(input_data):
 	mins = min(solution)
 	if mins:
 		solution = [solution[x]-mins for x in xrange(node_count)]
+	'''
 	
 	#node_count = set(solution)
-	Class = generateclass(solution)
+	TClass = generateclass(solution)
 
 	print 'greedy done'
 
 	star = solution[:]
-	s = ff(Class)
-	tabu = [[]]*200
+	s = ff(TClass)
+	tabu = [[]]*450
 	#tabu.append(star[:])
-	aspiration = [[]]*30
-	colorn = len(Class)
-	M = 5000
+	aspiration = [[]]*1
+	colorn = len(TClass)
+	M = 1000
 	L = 0
-	AAA = xrange(0,M,100)
-
-
-	
-	for t in xrange(M):
-		Gamma,node,ko = [],[],[]
-		for i in nodes:
-			ocolor = solution[i]
-			bb,ncolor = neighborcolor(i)
-			new = set(solution) - ncolor
-			if new:
-				newcolor = list(new)
-				for k in newcolor:
-					if [i,k] in tabu:
-						if [i,k] not in aspiration:
-							continue
-					g = gam(ocolor,k,Class)
-					if Gamma != []:
-						if g > Gamma:
+	AAA = xrange(0,M,1)
+	Minimum = 24
+	for y in xrange(1):
+		solution = [x for x in xrange(node_count)]
+		Class = TClass[:]
+		#Minimum = 10
+		print y
+		for t in xrange(M):
+			Gamma,node,ko = [],[],[]
+			shuffle(nodes)
+			for i in nodes:
+				ocolor = solution[i]
+				bb,ncolor = neighborcolor(i)
+				new = set(solution) - ncolor
+				if new:
+					newcolor = list(new)
+					for k in newcolor:
+						if [i,k] in tabu:
+							if [i,k] not in aspiration:
+								continue
+						g = gam(ocolor,k,Class)
+						if Gamma != []:
+							if g > Gamma:
+								Gamma = g
+								node = i
+								ko = k
+						else:
 							Gamma = g
 							node = i
-							ko = k
-					else:
-						Gamma = g
-						node = i
-						ko = k
-		#print node,ko
-		if Gamma == []:
-			node = randrange(node_count)
-			Class[solution[node]].remove(node)
-			ko = max(solution) + 1
-			tabu.append([node,ko])
-			tabu.pop(0)
-			if len(Class) < solution[node]:
-				Class.append([node])
+							ko = k			
+			#print node,ko
+			if Gamma == []:
+				node = randrange(node_count)
+				Class[solution[node]].remove(node)
+				ko = max(solution) + 1
+				tabu.append([node,ko])
+				tabu.pop(0)
+				if len(Class) < solution[node]:
+					Class.append([node])
+				else:
+					Class[solution[node]].append(node)
 			else:
-				Class[solution[node]].append(node)
-		else:
-			Class[solution[node]].remove(node)
-			solution[node] = ko
-			Class[ko].append(node)
-			tabu.append([node,ko])
-			tabu.pop(0)
-			if Gamma > 0:
-				s += Gamma
-				star = solution[:]
-				aspiration.append([node,ko])
-				aspiration.pop(0)
+				tttt = Class[solution[node]]
+				ttbb = tttt[:]
+				ttbb.remove(node)
+				Class[solution[node]] = ttbb
+				solution[node] = ko
+				tttt = Class[ko]
+				ttbb = tttt[:]
+				ttbb.append(node)
+				Class[ko] = ttbb
+				tabu.append([node,ko])
+				tabu.pop(0)
+				if Gamma > 0:
+					s += Gamma
+					star = solution[:]					
+					aspiration.append([node,ko])
+					aspiration.pop(0)
 		
+		if len(set(star)) < Minimum:
+			Minimum = len(set(star))
+			superstar = star[:]
+			sClass = Class[:]
 		if t in AAA:
 			print t
 
 
-	#star = update(Class)
 	# check 
-	#Class = generateclass(solution)
-	node_count = len(set(star))
+	Class = generateclass(superstar)
+	superstar = update(Class)
+	node_count = len(set(superstar))
 	c = []
 	for i in edges:
-		temp = star[i[0]] - star[i[1]]
+		temp = superstar[i[0]] - superstar[i[1]]
 		c.append(temp)
 	if 0 in c:
 		a = 0
@@ -236,7 +252,7 @@ def solve_it(input_data):
 
 	# prepare the solution in the specified output format
 	output_data = str(node_count) + ' ' + str(a) + '\n'
-	output_data += ' '.join(map(str, star))
+	output_data += ' '.join(map(str, superstar))
 
 	return output_data
 
