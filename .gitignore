@@ -38,4 +38,4 @@ nosetests.xml
 # for sky
 *.zip
 *.mp4
-*.str
+*.srt

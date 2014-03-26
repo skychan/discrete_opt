@@ -162,15 +162,15 @@ def solve_it(input_data):
 
 	star = solution[:]
 	s = ff(TClass)
-	tabu = [[]]*450
+	tabu = [[]]*120
 	#tabu.append(star[:])
 	aspiration = [[]]*1
 	colorn = len(TClass)
-	M = 1000
+	M = 2000
 	L = 0
-	AAA = xrange(0,M,1)
-	Minimum = 24
-	for y in xrange(1):
+	AAA = xrange(0,M,5)
+	Minimum = 20
+	for y in xrange(5):
 		solution = [x for x in xrange(node_count)]
 		Class = TClass[:]
 		#Minimum = 10
@@ -226,13 +226,14 @@ def solve_it(input_data):
 					star = solution[:]					
 					aspiration.append([node,ko])
 					aspiration.pop(0)
+			if t in AAA:
+				print t
 		
 		if len(set(star)) < Minimum:
 			Minimum = len(set(star))
 			superstar = star[:]
 			sClass = Class[:]
-		if t in AAA:
-			print t
+		
 
 
 	# check 
@@ -247,11 +248,13 @@ def solve_it(input_data):
 		a = 0
 	else:
 		a = 1
+	if a == 1:
+		print '^-^'
 
 
 
 	# prepare the solution in the specified output format
-	output_data = str(node_count) + ' ' + str(a) + '\n'
+	output_data = str(node_count) + ' ' + str(0) + '\n'
 	output_data += ' '.join(map(str, superstar))
 
 	return output_data

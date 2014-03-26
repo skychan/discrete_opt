@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-Item = namedtuple("Item", ['index', 'value', 'weight'])
+Item = namedtuple("Item", ['value', 'weight'])
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -16,25 +16,55 @@ def solve_it(input_data):
 
     items = []
 
-    for i in range(1, item_count+1):
+    for i in xrange(1, item_count+1):
         line = lines[i]
         parts = line.split()
-        items.append(Item(i-1, int(parts[0]), int(parts[1])))
+        items.append(Item(int(parts[0]), int(parts[1])))
 
     # a trivial greedy algorithm for filling the knapsack
     # it takes items in-order until the knapsack is full
     value = 0
     weight = 0
     taken = [0]*len(items)
+    table = [[0]*(capacity+1)]
+#    table = [[]]
 
-    for item in items:
-        if weight + item.weight <= capacity:
-            taken[item.index] = 1
-            value += item.value
-            weight += item.weight
+    # begin to table the value
+    for i in xrange(item_count):
+        item = items[i]
+        s = []
+        for k in xrange(0, capacity+1):  
+            if i == 0:
+                if item.weight <= k:
+                    s.append(item.value)
+                else:
+                    s.append(0)                    
+            elif item.weight <= k:
+                temp = max(table[i][k], item.value + table[i][k-item.weight])
+                s.append(temp)
+            else:
+                temp = table[i][k]
+                s.append(temp)
+        table.append(s)
+
+    value = table[item_count][capacity]
+    # begin to pick the var
+    for j in xrange(item_count-1,0,-1):
+        item = items[j]        
+        if table[j+1][capacity] == table[j][capacity] :
+            taken[j] = 0
+        else:
+            taken[j] = 1
+            capacity = capacity - item.weight
+            if capacity == 0:
+                break
+    
+#        taken[item.index] = 1
+#        value += item.value
+#       weight += item.weight
     
     # prepare the solution in the specified output format
-    output_data = str(value) + ' ' + str(0) + '\n'
+    output_data = str(value) + ' ' + str(1) + '\n'
     output_data += ' '.join(map(str, taken))
     return output_data
 
