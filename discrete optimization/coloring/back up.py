@@ -386,3 +386,18 @@ if Delta >0:
     		print t
 		
 	'''
+
+
+if Gamma == []:
+			node = randrange(node_count)
+			Class[solution[node]].remove(node)
+			ko = max(solution) + 1
+			tabu.append([node,ko])
+			tabu.pop(0)
+			if len(Class) < solution[node]:
+				Class.append([node])
+				Bad.append(0)
+			else:
+				Class[solution[node]].append(node)
+		else:
+		
