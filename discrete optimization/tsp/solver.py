@@ -76,23 +76,33 @@ def solve_it(input_data):
 			print i
 	print 'greedy done'
 	'''
+	bar = range(nodeCount)
+	area = bar[-10:]
+	area.extend(bar[:10])
+	T = 0
 	t = 0
 	while True:
 		delta = []
 		a,b=[],[]
-		for i in xrange(nodeCount-2):
-			for j in xrange(i+2,nodeCount):
-				s = twodelta(links[i],links[j])
+		for i in xrange(len(area)-2):
+			for j in xrange(i+2,len(area)):
+				s = twodelta(links[area[i]],links[area[j]])
 				if delta == [] or s >delta:
 					delta = s
-					a,b = i,j
+					a = min(area[i],area[j])
+					b = max(area[i],area[j])
 		if round(delta,5) > 0:
 			L -= delta
 			temp = solution[a:b]
 			solution[a:b] = temp[-1::-1]
 			links = linking(solution)
+		elif T + 20 < nodeCount:
+			area = bar[T:T+20]
+			T += 10
+			print T
 		else:
 			break
+		
 		t += 1
 		if t %1 == 0:
 			print t
@@ -115,7 +125,8 @@ def solve_it(input_data):
 		fre.write('\n')
 	fre.close()
 
-	return output_data
+	#return output_data
+	return obj
 
 
 import sys
