@@ -40,6 +40,9 @@ nosetests.xml
 *.mp4
 *.srt
 discrete optimization
-data
 .vscode
+*.vtt
+Slides
+data
 _coursera
+*.pdf

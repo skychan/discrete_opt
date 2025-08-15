@@ -58,43 +58,38 @@ def solve_it(input_data):
     '''
     DP version
     '''
-    def dynamic_programming(items, capacity):
-        value = 0
-        taken = [0]*len(items)
-        dp = {(0,i): 0 for i in range(len(items)+1)}
-        def get_dp(k,i):
-            if (k,i) in dp:
-                return dp[k,i]
-            if i == 0:
-                dp[k, i] = 0
-                return 0
-            item = items[i-1]
-            if item.weight > k:
-                return get_dp(k, i-1)
-            else:
-                dp[k,i] = max(get_dp(k,i-1), get_dp(k-item.weight, i-1) + item.value)
-                return dp[k,i]
+    # dp = {(0,i): 0 for i in range(len(items)+1)}
+    # def get_dp(k,i):
+    #     if (k,i) in dp:
+    #         return dp[k,i]
+    #     if i == 0:
+    #         dp[k, i] = 0
+    #         return 0
+    #     item = items[i-1]
+    #     if item.weight > k:
+    #         return get_dp(k, i-1)
+    #     else:
+    #         dp[k,i] = max(get_dp(k,i-1), get_dp(k-item.weight, i-1) + item.value)
+    #         return dp[k,i]
 
-        best_value = get_dp(capacity, len(items))
-        # print(dp)
-        value = best_value
-        # print(best_value)
-        k = capacity
-        j = len(items) - 1
+    # best_value = get_dp(capacity, len(items))
+    # # print(dp)
+    # value = best_value
+    # # print(best_value)
+    # k = capacity
+    # j = len(items) - 1
 
-        while j > -1 and k > 0:
-        # for j in range(len(items)-1, 0, -1):
-            if (k, j) not in dp:
-                j -= 1
-                continue
-            if best_value == dp[k,j]:
-                j -= 1
-                continue
-            k -= items[j].weight
-            best_value -= items[j].value
-            taken[j] = 1
-        
-        return value, taken
+    # while j > -1 and k > 0:
+    # # for j in range(len(items)-1, 0, -1):
+    #     if (k, j) not in dp:
+    #         j -= 1
+    #         continue
+    #     if best_value == dp[k,j]:
+    #         j -= 1
+    #         continue
+    #     k -= items[j].weight
+    #     best_value -= items[j].value
+    #     taken[j] = 1
 
 
     def least_discrepancy_search(items, capacity):
@@ -201,12 +196,8 @@ def solve_it(input_data):
         taken = [int(i) for i in best_node.state]
         return value, taken
 
-    if capacity * len(items) <= 1e7 or len(items) <= 200:
-        value, taken = dynamic_programming(items, capacity)
-
-    else:
-        # Call the LDFS function and unpack results
-        value, taken = least_discrepancy_search(items, capacity)
+    # Call the LDFS function and unpack results
+    value, taken = least_discrepancy_search(items, capacity)
 
 
     # multi waves, record the current best, upper bound, 
