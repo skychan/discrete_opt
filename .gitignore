@@ -39,3 +39,8 @@ nosetests.xml
 *.zip
 *.mp4
 *.srt
+*.vtt
+Slides
+data
+_coursera
+*.pdf
