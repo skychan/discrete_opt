@@ -39,3 +39,7 @@ nosetests.xml
 *.zip
 *.mp4
 *.srt
+discrete optimization
+data
+.vscode
+_coursera
